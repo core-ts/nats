@@ -1,15 +1,16 @@
-import { Client, connect as connect2 } from 'ts-nats';
+import { Client, connect as conn, NatsConnectionOptions } from 'ts-nats';
 
 export interface StringMap {
   [key: string]: string;
 }
 export interface Config {
-  uri: string;
+  opts: NatsConnectionOptions | string | number;
   subject: string;
 }
+export type NatsConfig = Config;
 export function toString(m: any): string {
   return typeof m === 'string' ? m : JSON.stringify(m);
 }
 export function connect(uri: string): Promise<Client> {
-  return connect2({ servers: [uri] });
+  return conn({ servers: [uri] });
 }

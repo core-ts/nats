@@ -1,7 +1,15 @@
 import { Codec, JSONCodec } from 'nats';
-import { Client } from 'ts-nats';
-import { toString } from './core';
+import { Client, connect, NatsConnectionOptions } from 'ts-nats';
+import { Config, toString } from './core';
 
+export function createPublisher<T>(c: Config, logError?: (msg: any) => void, logInfo?: (msg: any) => void): Promise<Publisher<T>> {
+  return connect(c.opts).then(client => {
+    return new Publisher<T>(client, c.subject, logError, logInfo);
+  })
+}
+export const createProducer = createPublisher;
+export const createSender = createPublisher;
+export const createWriter = createPublisher;
 export class Publisher<T> {
   constructor(public client: Client, public subject: string, public logError?: (msg: any) => void, public logInfo?: (msg: any) => void) {
     this.jc = JSONCodec();
@@ -25,7 +33,6 @@ export class Publisher<T> {
     return this.publish(data);
   }
   publish(data: T): Promise<void> {
-    const jc = JSONCodec();
     return new Promise((resolve, reject) => {
       if (this.logInfo) {
         this.logInfo('Produce send data : ' + JSON.stringify(data));
@@ -46,6 +53,14 @@ export const Producer = Publisher;
 export const Sender = Publisher;
 export const Writer = Publisher;
 
+export function createSimplePublisher<T>(opts: NatsConnectionOptions, logError?: (msg: any) => void, logInfo?: (msg: any) => void): Promise<SimplePublisher<T>> {
+  return connect(opts).then(client => {
+    return new SimplePublisher<T>(client, logError, logInfo);
+  })
+}
+export const createSimpleProducer = createSimplePublisher;
+export const createSimpleSender = createSimplePublisher;
+export const createSimpleWriter = createSimplePublisher;
 // tslint:disable-next-line:max-classes-per-file
 export class SimplePublisher<T> {
   constructor(public client: Client, public logError?: (msg: any) => void, public logInfo?: (msg: any) => void) {
@@ -70,7 +85,6 @@ export class SimplePublisher<T> {
     return this.publish(subject, data);
   }
   publish(subject: string, data: T): Promise<void> {
-    const jc = JSONCodec();
     return new Promise((resolve, reject) => {
       if (this.logInfo) {
         this.logInfo('Produce send data : ' + JSON.stringify(data));

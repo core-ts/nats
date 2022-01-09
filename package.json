@@ -1,6 +1,6 @@
 {
   "name": "natsjs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Validate data",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
@@ -12,7 +12,7 @@
     "nats": "^2.4.0",
     "tslint": "^6.1.3",
     "ts-nats": "^1.2.15",
-    "typescript": "^3.8.3"
+    "typescript": "^4.5.4"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
