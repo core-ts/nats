@@ -1,6 +1,6 @@
 {
-  "name": "nats-extension",
-  "version": "0.1.1",
+  "name": "nats-plus",
+  "version": "0.1.0",
   "description": "nats",
   "main": "./lib/index.js",
   "types": "./src/index.ts",
