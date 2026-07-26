@@ -11,8 +11,7 @@
     "sourceMap": false,
     "declaration": false,
     "experimentalDecorators": false,
-    "removeComments": true,
-    "types": ["node"]
+    "removeComments": true
   },
   "include": [
     "src/**/*.ts"
