@@ -441,6 +441,7 @@ The project is part of the **core-ts** ecosystem.
 |----------|------------------------------------------|
 | [`health-service`](https://www.npmjs.com/package/health-service) | Health checks | 
 | [`config-plus`](https://www.npmjs.com/package/config-plus) | Configuration |
+| [`logger-core`](https://www.npmjs.com/package/logger-core) | Structured logging |
 | [`validation-core`](https://www.npmjs.com/package/validation-core) | Data validation |
 | [`rabbitmq-transport`](https://www.npmjs.com/package/rabbitmq-transport) | RabbitMQ transport and Health Check |
 | [`activemq`](https://www.npmjs.com/package/activemq) | ActiveMQ transport and Health Check |
