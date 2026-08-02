@@ -2,7 +2,18 @@
 
 A lightweight, type-safe, opinionated wrapper for NATS in TypeScript.
 
-`nats-plus` simplifies publishing and consuming JSON messages while providing a consistent API for enterprise applications. It hides low-level NATS details such as encoding, decoding, and header handling so application code can focus on business logic.
+[`nats-plus`](https://www.npmjs.com/package/nats-plus) simplifies publishing and consuming JSON messages while providing a consistent API for enterprise applications. It hides low-level NATS details such as encoding, decoding, and header handling so application code can focus on business logic.
+
+It intentionally does **not** provide:
+
+- Retry policies
+- Retry queues
+- Validation
+- Dead Letter Queue
+- Business workflow
+
+These responsibilities belong to the [`message-processing`](https://www.npmjs.com/package/message-processing) library.
+
 
 ## Features
 
@@ -289,6 +300,127 @@ The goal is to keep business code clean while remaining very close to the perfor
 
 ---
 
+# Transport Responsibilities
+
+This library intentionally focuses on NATS transport.
+
+It provides:
+
+- Connection
+- Publisher
+- Subscriber
+- Serialization
+- Header conversion
+- Health checking
+
+It intentionally does **not** provide:
+
+- Retry policies
+- Retry queues
+- Validation
+- Dead Letter Queue
+- Business workflow
+
+These responsibilities belong to the Message Processing library.
+
+---
+
+# Architecture
+
+```
+ Business Application
+
+         ↓
+
+  Message Processing
+
+--------------------------
+
+     Validation
+        Retry
+  Dead Letter Queue
+     Retry Count
+       Logging
+
+          ↓
+
+         NATS
+
+--------------------------
+
+      Publisher
+      Subscriber
+       Headers
+     Health Check
+
+          ↓
+
+@nats-io/transport-node
+
+          ↓
+
+    RabbitMQ Server
+```
+
+This separation keeps the RabbitMQ library small, reusable, and focused on transport concerns.
+
+---
+
+# Why Separate Transport from Processing?
+
+Retry logic is not specific to NATS.
+
+For example, the same business workflow can be implemented using:
+
+- RabbitMQ
+- Kafka
+- Amazon SQS
+- Azure Service Bus
+- Google Pub/Sub
+
+By keeping transport and processing separate, business logic remains independent of the messaging technology.
+
+---
+
+# Ecosystem
+
+This library works naturally with the **Message Processing** library.
+
+```
+   NATS Server
+
+        ↓
+
+@nats-io/transport-node
+
+        ↓
+
+     nats-plus
+
+        ↓
+
+ message-processing
+
+        ↓
+
+ Business Services
+```
+
+The [`nats-plus`](https://www.npmjs.com/package/nats-plus) library handles transport.
+
+The [`message-processing`](https://www.npmjs.com/package/message-processing) library handles:
+
+- Validation
+- Retry
+- Retry queues
+- Dead Letter Queue
+- Error handling
+- Logging
+
+Together they provide a complete messaging solution while maintaining clear separation of responsibilities.
+
+---
+
 ## Use Cases
 
 * Microservices
@@ -305,13 +437,20 @@ The goal is to keep business code clean while remaining very close to the perfor
 
 The project is part of the **core-ts** ecosystem.
 
-* sql-core
-* mysql2-core
-* redis
-* rabbitmq-plus
-* activemq
-* kafka-plus
-* io-one
+| Library | Responsibility                           |
+|----------|------------------------------------------|
+| [`health-service`](https://www.npmjs.com/package/health-service) | Health checks | 
+| [`config-plus`](https://www.npmjs.com/package/config-plus) | Configuration |
+| [`validation-core`](https://www.npmjs.com/package/validation-core) | Data validation |
+| [`rabbitmq-transport`](https://www.npmjs.com/package/rabbitmq-transport) | RabbitMQ transport and Health Check |
+| [`activemq`](https://www.npmjs.com/package/activemq) | ActiveMQ transport and Health Check |
+| [`kafka-plus`](https://www.npmjs.com/package/kafka-plus) | Kafka transport and Health Check |
+| [`google-pubsub`](https://www.npmjs.com/package/google-pubsub) | Google Pubsub transport and Health Check |
+| [`nats-plus`](https://www.npmjs.com/package/nats-plus) | NATS transport and Health Check |
+| [`ibmmq-plus`](https://www.npmjs.com/package/ibmmq-plus) | IBM MQ transport and Health Check |
+| [`redis-messaging`](https://github.com/core-ts/redis-messaging) | Redis Pubsub transport and Health Check |
+| [`mysql2-core`](https://www.npmjs.com/package/mysql2-core) | MySQL access and Health Check |
+| [`mongodb-kit`](https://www.npmjs.com/package/mongodb-kit) | MongoDB access and Health Check |
 
 Each messaging library follows a similar API, making it easier to switch between brokers while keeping application code consistent.
 
