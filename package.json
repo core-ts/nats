@@ -1,6 +1,6 @@
 {
   "name": "nats-plus",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "nats",
   "main": "./lib/index.js",
   "types": "./src/index.ts",

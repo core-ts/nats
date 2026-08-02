@@ -65,7 +65,7 @@ export class Publisher<T> {
   }
 }
 
-export type Process<T, R> = (data: T, attributes?: StringMap) => Promise<R>
+export type Process<T, R> = (data: T, attributes?: StringMap, msg?: Msg) => Promise<R>
 
 export class Subscriber<T, R> {
   protected readonly decoder = new TextDecoder()
@@ -79,18 +79,14 @@ export class Subscriber<T, R> {
     protected readonly logInfo?: Log,
   ) {
     this.subscribe = this.subscribe.bind(this)
+    this.run = this.run.bind(this)
   }
 
-  subscribe(process: Process<T, R>): void {
+  async subscribe(process: Process<T, R>): Promise<void> {
     const options = this.queue ? { queue: this.queue } : undefined
 
     this.subscription = this.connection.subscribe(this.subject, options)
-
-    this.run(process).catch((err) => {
-      if (this.logError) {
-        this.logError(err)
-      }
-    })
+    await this.run(process)
   }
 
   protected async run(process: Process<T, R>): Promise<void> {
@@ -104,7 +100,7 @@ export class Subscriber<T, R> {
 
         const attributes = this.buildHeaders(msg)
 
-        await process(data, attributes)
+        await process(data, attributes, msg)
 
         if (this.logInfo) {
           this.logInfo(`Received message from xxx '${this.subject}': ${JSON.stringify(data)}`)
@@ -142,19 +138,26 @@ export class Subscriber<T, R> {
 export interface AnyMap {
   [key: string]: any
 }
-
-export class NATSChecker {
+export interface HealthChecker {
+  name(): string
+  build(data: AnyMap, error: any): AnyMap
+  check(): Promise<AnyMap>
+}
+export class NATSChecker implements HealthChecker {
+  protected readonly service: string
   constructor(
     protected readonly connection: NatsConnection,
+    service?: string,
     protected readonly timeout = 4500,
   ) {
+    this.service = service || "nats"
     this.name = this.name.bind(this)
     this.build = this.build.bind(this)
     this.check = this.check.bind(this)
   }
 
   name(): string {
-    return "nats"
+    return this.service
   }
 
   build(data: AnyMap, error: any): AnyMap {
